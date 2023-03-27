@@ -2,16 +2,106 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
+    <link rel="stylesheet" href="css/styles.css">
     <title>Register</title>
+
   </head>
   <body>
-    <div class="">
+
+    <div class="register-page">
       <h1>Register</h1>
-      <form class="" action="/register" method="post">
-        <input type="text" name="username" placeholder="Email"><br>
-        <input type="password" name="password" placeholder="Password"><br>
-        <button type="submit">register</button>
+      <form class="register-form" action="/register" method="post">
+        <div>
+          <label for="username">Username</label><br><span id="emailWarning" style="color: red;"></span>
+          <input id="email" type="text" name="username" placeholder="Email">
+        </div>
+        <div>
+          <label for="password">Password</label><br><span id="passwordWarning" style="color: red;"></span>
+          <input id="password" type="password" name="password" placeholder="Password">
+        </div>
+        <!-- <div>
+          <label for="password">conform Password</label></label><br><span id="confirmPasswordWarning" style="color: red;"></span>
+          <input id="confirmPassword" type="password" name="password" placeholder="conform Password">
+        </div> -->
+        <button type="submit">register</button><br>
+        <a href="/login">already have account?</a>
       </form>
     </div>
+    <script type="text/javascript">
+      const emailInput = document.getElementById("email");
+      const passwordInput = document.getElementById("password");
+      const confirmPasswordInput = document.getElementById("confirmPassword");
+      const emailWarning = document.getElementById("emailWarning");
+      // const passwordWarning = document.getElementById("passwordWarning");
+      // const confirmPasswordWarning = document.getElementById("confirmPasswordWarning");
+
+      function isValidEmail(email) {
+      // regular expression pattern for valid email addresses
+      const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return pattern.test(email);
+      }
+
+      function isValidPassword(password) {
+      // password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number
+      const pattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/;
+      return pattern.test(password);
+      }
+
+      function validateEmail() {
+      if (emailInput.value === "") {
+        emailWarning.textContent = "Email is required";
+        return false;
+      } else if (!isValidEmail(emailInput.value)) {
+        emailWarning.textContent = "Invalid email address";
+        return false;
+      } else {
+        emailWarning.textContent = "";
+        return true;
+      }
+      }
+
+      function validatePassword() {
+      if (passwordInput.value === "") {
+        passwordWarning.textContent = "Password is required";
+        return false;
+      } else if (!isValidPassword(passwordInput.value)) {
+        passwordWarning.textContent = "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number";
+        return false;
+      } else {
+        passwordWarning.textContent = "";
+        return true;
+      }
+      }
+
+      // function validateConfirmPassword() {
+      // if (confirmPasswordInput.value === "") {
+      //   confirmPasswordWarning.textContent = "Confirm password is required";
+      //   return false;
+      // } else if (confirmPasswordInput.value !== passwordInput.value) {
+      //   confirmPasswordWarning.textContent = "Passwords do not match";
+      //   return false;
+      // } else {
+      //   confirmPasswordWarning.textContent = "";
+      //   return true;
+      // }
+      // }
+
+      function validateForm() {
+      const emailIsValid = validateEmail();
+      const passwordIsValid = validatePassword();
+      // const confirmPasswordIsValid = validateConfirmPassword();
+      return emailIsValid && passwordIsValid
+      // && confirmPasswordIsValid;
+      }
+
+      emailInput.addEventListener("input", validateEmail);
+      passwordInput.addEventListener("input", validatePassword);
+      // confirmPasswordInput.addEventListener("input", validateConfirmPassword);
+      document.querySelector("form").addEventListener("submit", function(event) {
+      if (!validateForm()) {
+        event.preventDefault();
+      }
+      });
+    </script>
   </body>
 </html>

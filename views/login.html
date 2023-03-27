@@ -2,16 +2,89 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
+    <link rel="stylesheet" href="css/styles.css">
     <title>Login</title>
   </head>
   <body>
-    <div class="">
+
+    <div class="login-page">
       <h1>Login</h1>
-      <form class="" action="/login" method="post">
-        <input type="text" placeholder="Email" name="username"><br>
-        <input type="password" placeholder="Password" name="password"><br>
-        <button type="submit">Login</button>
+      <form class="login-form" action="/login" method="post">
+        <div class="input-div">
+            <label for="username">Username</label><br><span id="emailWarning" style="color: red;"></span>
+            <input id="email" type="text" placeholder="Email" name="username" >
+        </div>
+        <div class="input-div">
+            <label for="password">Password</label><br><span id="passwordWarning" style="color: red;"></span>
+            <input id="password" type="password" placeholder="Password" name="password"><br>
+        </div>
+        <button id="button" type="submit">Login</button>
+        <br>
+        <a href="/register">don't have account ?</a>
       </form>
     </div>
+
+    <script type="text/javascript">
+      const emailInput = document.getElementById("email");
+      const passwordInput = document.getElementById("password");
+      const emailWarning = document.getElementById("emailWarning");
+      const passwordWarning = document.getElementById("passwordWarning");
+
+      function isValidEmail(email) {
+      // regular expression pattern for valid email addresses
+      const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return pattern.test(email);
+    }
+
+    function isValidPassword(password) {
+      // password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number
+      const pattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/;
+      return pattern.test(password);
+    }
+
+    function validateEmail() {
+      if (emailInput.value === "") {
+        emailWarning.textContent = "Email is required";
+        return false;
+      } else if (!isValidEmail(emailInput.value)) {
+        emailWarning.textContent = "Invalid email address";
+        return false;
+      } else {
+        emailWarning.textContent = "";
+        document.getElementById('button').style.backgroundColor = "#4CAF50";
+        return true;
+      }
+    }
+
+    function validatePassword() {
+      if (passwordInput.value === "") {
+        passwordWarning.textContent = "Password is required";
+        return false;
+      } else if (!isValidPassword(passwordInput.value)) {
+        passwordWarning.textContent = "Password must have least 8 characters and least one uppercase letter, one lowercase letter and one number";
+        return false;
+      } else {
+        passwordWarning.textContent = "";
+        document.getElementById('button').style.backgroundColor = "#4CAF50";
+        return true;
+      }
+    }
+
+    function validateForm() {
+      const emailIsValid = validateEmail();
+      const passwordIsValid = validatePassword();
+      return emailIsValid && passwordIsValid;
+    }
+
+    emailInput.addEventListener("input", validateEmail);
+    passwordInput.addEventListener("input", validatePassword);
+    document.querySelector("form").addEventListener("submit", function(event) {
+      if (!validateForm()) {
+        event.preventDefault();
+        document.getElementById('button').style.backgroundColor = "red";
+      }
+    });
+
+    </script>
   </body>
 </html>

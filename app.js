@@ -1,6 +1,12 @@
+require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+const saltRounds = 8;
+const session = require("express-session");
+const passport = require("passport");
+const passportLocalMongoose = require("passport-local-mongoose");
 
 const app = express();
 app.use(express.static("public"));
@@ -37,18 +43,16 @@ app.get("/register", (req, res)=>{
   res.sendFile(__dirname+"/views/register.html");
 });
 
-
-
 app.post("/register", async (req, res)=>{
+  bcrypt.hash(req.body.password, saltRounds, function(err, hash){
     const newUser = new User({
       email: req.body.username,
-      password: req.body.password
+      password: hash
     });
-//  await newUser.save()
-res.sendFile(__dirname+ "/views/login.html");
+    newUser.save()
+    res.sendFile(__dirname+ "/views/login.html");
+  })
 });
-
-
 
 app.post("/login", async(req, res) =>{
   try {
@@ -58,17 +62,17 @@ app.post("/login", async(req, res) =>{
 
     const userEmail = await User.findOne({email: username});
     console.log(userEmail.password);
-    if(userEmail.password === pass){
-      res.sendFile(__dirname+"/views/dashboard.html");
-    } else {
-      res.send("invalid information !");
-    }
+    bcrypt.compare(pass, userEmail.password, function(err, result){
+      if (result === true){
+        res.sendFile(__dirname+"/views/dashboard.html");
+      } else {
+        res.send("invalid information !!!");
+      }
+    });
   } catch (error) {
     res.send("invalid information")
   }
 });
-
-
 
 
 //Logout
