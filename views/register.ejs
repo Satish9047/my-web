@@ -2,6 +2,7 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <link rel="stylesheet" href="css/styles.css">
     <title>Register</title>
 
@@ -11,25 +12,130 @@
     <div class="register-page">
       <h1>Register</h1>
       <form class="register-form" action="/register" method="post">
+        <div class="">
+          <% if (message !=="") { %>
+            <p><%= message %></p>
+          <% } %>
+        </div>
         <div>
           <label for="username">Username</label><br><span id="emailWarning" style="color: red;"></span>
           <input id="email" type="text" name="username" placeholder="Email">
         </div>
         <div>
           <label for="password">Password</label><br><span id="passwordWarning" style="color: red;"></span>
-          <input id="password" type="password" name="password" placeholder="Password">
-        </div>
-        <div class="text">
-          your password is too weak.
+          <input id="password" onkeyup="trigger()" type="password" name="password" placeholder="Password">
         </div>
         <div>
           <label for="password">confirm Password</label></label><br><span id="confirmPasswordWarning" style="color: red;"></span>
-          <input id="confirmPassword" type="password" placeholder="conform Password">
+          <input id="confirmPassword" name="confirmpassword" type="password" placeholder="conform Password">
         </div>
+        <div class="show-div">
+          <input type="checkbox" id="showpass" class="show-pass">show password</input>
+        </div>
+        <div class="indicator">
+          <span class="weak"></span>
+          <span class="medium"></span>
+          <span class="strong"></span>
+        </div>
+        <div class="text"></div>
+        <div class="g-recaptcha" id="captchaDiv" data-sitekey="6Ld1WCAlAAAAAIM7HWhUkLIU0tCHrYMZEL9UR6gB"></div>
         <button type="submit">register</button><br>
-        <a href="/login">already have account?</a>
+        <a href="/login">already have account?</a><br>
+        <a href="/auth/google" class="google-btn" role="button">Sign Up with Google</a>
       </form>
     </div>
+    <script>
+        function addEvent(el, event, callback) {
+          if ('addEventListener' in el) {
+            el.addEventListener(event, callback, false);
+          } else {
+            el['e' + event + callback] = callback;
+            el[event + callback] = function() {
+              el['e' + event + callback](window.event);
+            };
+            el.attachEvent('on' + event, el[event + callback]);
+          }
+        }
+
+        function removeEvent(el, event, callback) {
+          if ('removeEventListener' in el) {
+            el.removeEventListener(event, callback, false);
+          } else {
+            el.detachEvent('on' + event, el[event + callback]);
+            el[event + callback] = null;
+            el['e' + event + callback] = null;
+          }
+        }
+
+        (function() {
+          var chk = document.getElementById('showpass');
+
+          var pwd = document.getElementById('password');
+
+          addEvent(chk, 'change', function(e) {
+            var target = e.target || e.srcElement;
+            try {
+              if (target.checked) {
+                pwd.type = 'text';
+              } else {
+                pwd.type = 'password';
+              }
+            } catch (error) {
+              alert('This browser cannot switch type');
+            }
+          });
+        })();
+        </script>
+
+        <script type="text/javascript">
+          const indicator = document.querySelector(".indicator");
+          const input = document.getElementById("password");
+          const weak = document.querySelector(".weak");
+          const medium = document.querySelector(".medium");
+          const strong = document.querySelector(".strong");
+          const text = document.querySelector(".text");
+
+          let regExpWeak = /[a-z]/;
+          let regExpMedium = /\d+/;
+          let regExpStrong = /.[!,@,#,$,%,^,&,*,?,_,~,-,(,)]/;
+
+          function trigger(){
+            if(input.value != ""){
+              indicator.style.display = "block";
+              indicator.style.display = "flex";
+              if(input.value.length <= 5 && (input.value.match(regExpWeak) || input.value.match(regExpMedium) || input.value.match(regExpStrong)))no=1;
+              if(input.value.length >= 6 && ((input.value.match(regExpWeak) && input.value.match(regExpMedium)) || (input.value.match(regExpMedium) && input.value.match(regExpStrong)) || (input.value.match(regExpWeak) && input.value.match(regExpStrong))))no=2;
+              if(input.value.length >= 8 && input.value.match(regExpWeak) && input.value.match(regExpMedium) && input.value.match(regExpStrong))no=3;
+              if(no == 1){
+                weak.classList.add("active");
+                text.style.display = "block";
+                text.textContent = "Your password is weak.";
+                text.classList.add("weak");
+              }
+              if(no == 2){
+                medium.classList.add("active");
+                text.textContent = "Your password is medium.";
+                text.classList.add("medium");
+              }else {
+                medium.classList.remove("active");
+                text.classList.remove("medium");
+              }
+              if(no == 3){
+                medium.classList.add("active");
+                strong.classList.add("active");
+                text.textContent = "Your password is strong.";
+                text.classList.add("strong");
+              }else {
+                strong.classList.remove("active");
+                text.classList.remove("strong");
+              }
+            }else{
+              indicator.style.display = "none";
+              text.style.display = "none";
+            }
+          }
+        </script>
+
     <script type="text/javascript">
       const emailInput = document.getElementById("email");
       const passwordInput = document.getElementById("password");
@@ -37,7 +143,16 @@
       const emailWarning = document.getElementById("emailWarning");
       const passwordWarning = document.getElementById("passwordWarning");
       const confirmPasswordWarning = document.getElementById("confirmPasswordWarning");
+      const submitButton = document.querySelector("button[type='submit']");
 
+      function validateRecaptcha() {
+        const recaptchaResponse = grecaptcha.getResponse();
+        if (recaptchaResponse.length === 0) {
+          return false;
+        } else {
+          return true;
+        }
+      }
 
       function isValidEmail(email) {
       // regular expression pattern for valid email addresses
@@ -52,16 +167,16 @@
       }
 
       function validateEmail() {
-      if (emailInput.value === "") {
-        emailWarning.textContent = "Email is required";
-        return false;
-      } else if (!isValidEmail(emailInput.value)) {
-        emailWarning.textContent = "Invalid email address";
-        return false;
-      } else {
-        emailWarning.textContent = "";
-        return true;
-      }
+        if (emailInput.value === "") {
+          emailWarning.textContent = "Email is required";
+          return false;
+        } else if (!isValidEmail(emailInput.value)) {
+          emailWarning.textContent = "Invalid email address";
+          return false;
+        } else {
+          emailWarning.textContent = "";
+          return true;
+        }
       }
 
       function validatePassword() {
@@ -94,16 +209,20 @@
       const emailIsValid = validateEmail();
       const passwordIsValid = validatePassword();
       const confirmPasswordIsValid = validateConfirmPassword();
-      return emailIsValid && passwordIsValid //&& confirmPasswordIsValid;
+      const recaptchaIsValid = validateRecaptcha();
+      return emailIsValid && passwordIsValid && confirmPasswordIsValid && recaptchaIsValid;
       }
 
       emailInput.addEventListener("input", validateEmail);
       passwordInput.addEventListener("input", validatePassword);
-      //confirmPasswordInput.addEventListener("input", validateConfirmPassword);
-      document.querySelector("form").addEventListener("submit", function(event) {
-      if (!validateForm()) {
-        event.preventDefault();
-      }
+      confirmPasswordInput.addEventListener("input", validateConfirmPassword);
+      submitButton.addEventListener("click", function(event) {
+        if (!validateRecaptcha()) {
+          alert("Please complete the reCAPTCHA");
+          event.preventDefault();
+        } else if (!validateForm()) {
+          event.preventDefault();
+        }
       });
     </script>
   </body>

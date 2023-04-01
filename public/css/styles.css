@@ -11,7 +11,7 @@
 .register-page{
   width: 360px;
   padding: 2% 2% 2%;
-  margin: 10vh 40%;
+  margin: 5vh 40%;
   background-color: white;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
@@ -38,7 +38,6 @@ input {
   font-size: 14px;
 }
 button {
-  font-family: "Roboto", sans-serif;
   text-transform: uppercase;
   outline: 0;
   background: #4CAF50;
@@ -46,17 +45,13 @@ button {
   border: 0;
   padding: 15px;
   color: #FFFFFF;
-  font-size: 14px;
-  -webkit-transition: all 0.3 ease;
-  transition: all 0.3 ease;
+  font-size: 16px;
   cursor: pointer;
 }
 
 
+
 body {
-  /* background: #76b852; /* fallback for old browsers
-  background: rgb(141,194,111);
-  background: linear-gradient(90deg, rgba(141,194,111,1) 0%, rgba(118,184,82,1) 50%); */
   background-image: linear-gradient(to right, #0172AF , #66347F);
   font-family: "Roboto", sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -94,6 +89,7 @@ hr{
   width: 80px;
 }
 form .indicator{
+  margin-bottom: 10px;
   height: 10px;
   display: flex;
   align-items: center;
@@ -102,7 +98,7 @@ form .indicator{
   display: none;
 }
 
-form .indicator span{
+ form .indicator span{
   width: 100%;
   height: 100%;
   background: lightgrey;
@@ -112,19 +108,19 @@ form .indicator span{
 
 form .indicator span.medium{
   margin: 0 3px;
-
 }
+
 
 form .indicator span:before{
   content: '';
-  position:   absolute;
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: red;
   border-radius: 4px;
 }
+
 form .indicator span.active.weak:before{
   background-color: #ff4757;
 }
@@ -137,6 +133,161 @@ form .indicator span.active.strong:before{
   background-color: #23ad5c;
 }
 
-.text{
+form .text{
+  font-size:20px;
+  font-weight: 500;
+  margin-bottom: 10px;
   display: none;
+}
+form .text.weak{
+  color: #ff4757;
+}
+
+form .text.medium{
+  color: orange;
+}
+
+form .text.weak{
+  color: #23ad5c;
+}
+
+*{
+  margin: 0;
+  padding: 0;
+}
+.navbar{
+  height: 70px;
+  background-color: #393053;
+  display:flex;
+  align-items: center;
+}
+
+.nav-menu{
+  color: white;
+  background-color: inherit;
+  margin-left: 75%;
+
+}
+.menu{
+  color: white;
+  margin: 15px;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.div-body{
+  margin: 5% 30%;
+}
+.div-header{
+  margin: 10% 5%;
+}
+.footer{
+  margin: 60% 20%;
+}
+.dash-text{
+  color: white;
+  font-weight: bold;
+  text-align: center;
+}
+
+.google-btn {
+  display: inline-block;
+  background-color: #dd4b39;
+  color: #fff;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 4px;
+  text-decoration: none;
+  text-align: center;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.2);
+  margin: 15px 20%;
+}
+
+///password Strength
+.pw-meter {
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  width:350px;
+  background:#fff;
+  padding:20px;
+  box-shadow:0px 0px 20px 5px rgba(0,0,0,0.05);
+}
+.pw-meter h2 {
+  margin:10px 0px 30px;
+  font-size:20px;
+  color:#111;
+  text-align:center;
+}
+.pw-meter .form-element {
+  position:relative;
+}
+.pw-meter label {
+  display:block;
+  margin-bottom:8px;
+  color:#111;
+}
+.pw-meter input {
+  padding:8px 30px 8px 10px;
+  width:100%;
+  font-size:16px;
+  border:1px solid #bbb;
+  outline:none;
+}
+.pw-meter .pw-display-toggle-btn {
+  position:absolute;
+  right:10px;
+  top:35px;
+  width:20px;
+  height:20px;
+  text-align:center;
+  line-height:20px;
+  cursor:pointer;
+}
+.pw-meter .pw-display-toggle-btn i.fa-eye-slash {
+  display:none;
+}
+.pw-meter .pw-display-toggle-btn.active i.fa-eye-slash {
+  display:block;
+}
+.pw-meter .pw-display-toggle-btn.active i.fa-eye {
+  display:none;
+}
+.pw-meter .pw-strength {
+  position:relative;
+  width:100%;
+  height:20px;
+  margin-top:10px;
+  text-align:center;
+  background:#f2f2f2;
+  display:none;
+}
+.pw-meter .pw-strength span:nth-child(1) {
+  position:relative;
+  font-size:13px;
+  color:#111;
+  z-index:2;
+  font-weight:600;
+}
+.pw-meter .pw-strength span:nth-child(2) {
+  position:absolute;
+  top:0px;
+  left:0px;
+  width:0%;
+  height:100%;
+  border-radius:5px;
+  z-index:1;
+  transition:all 300ms ease-in-out;
+}
+
+.show-div{
+  display: flex;
+  margin-top: 2px;
+  align-items: center;
+}
+.show-pass{
+  margin-top: 15px;
+  align-items: center;
+  width: 40px;
 }

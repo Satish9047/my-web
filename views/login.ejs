@@ -20,7 +20,8 @@
         </div>
         <button id="button" type="submit">Login</button>
         <br>
-        <a href="/register">don't have account ?</a>
+        <a href="/register">don't have account ?</a><br>
+        <a href="/auth/google" class="google-btn" role="button">Sign Up with Google</a>
       </form>
     </div>
 
@@ -81,7 +82,6 @@
     document.querySelector("form").addEventListener("submit", function(event) {
       if (!validateForm()) {
         event.preventDefault();
-        document.getElementById('button').style.backgroundColor = "red";
       }
     });
 
