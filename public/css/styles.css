@@ -291,3 +291,7 @@ form .text.weak{
   align-items: center;
   width: 40px;
 }
+
+.error-message{
+  color: red;
+}

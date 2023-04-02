@@ -89,13 +89,12 @@ passport.use(new GoogleStrategy({
   });
 
   app.get("/login", (req, res)=>{
-    res.render("login");
+    res.render("login", {message: ""});
   });
 
   app.get("/register", (req, res)=>{
     res.render("register", {message: ""});
   });
-
 
 //register
 app.post('/register', async (req, res) => {
@@ -106,7 +105,8 @@ app.post('/register', async (req, res) => {
   if (user) {
     console.log("user already exists !!!!!");
     res.render("register", { message: "User Already exist, Try login !" });
-  } else {
+  }
+   else {
     User.register({username: email}, req. body.password)
       .then(user => {
         passport.authenticate("local")(req, res, function(){
@@ -131,22 +131,46 @@ app.post('/register', async (req, res) => {
 
 
 //Login
-app.post("/login", (req, res)=>{
-  const user = new User({
-    username: req.body.username,
-    password: req.body.password
-  });
-    req.login(user, function(err){
-      if(err){
-        console.log(err);
+
+app.post("/login", (req, res, next)=>{
+  passport.authenticate("local", (err, user, info) => {
+    if (err) {
+      return next(err);
+      res.redirect("/login");
+    }
+    if (!user) {
+      return res.render("login", {message: "Invalid credential !"});
+    }
+    req.login(user, (err) => {
+      if (err) {
+        return next(err);
         res.redirect("/login");
-      } else{
-        passport.authenticate("local")(req, res, function(){
-          res.redirect("/dashboard");
-        });
       }
+      return res.redirect('/dashboard');
     });
-  });
+  })(req, res, next);
+});
+
+// app.post("/login", (req, res)=>{
+//   const user = new User({
+//     username: req.body.username,
+//     password: req.body.password
+//   });
+//     req.login(user, function(err){
+//       if(err){
+//         res.redirect("/login");
+//         console.log(err);
+//       }
+//       if(!user){
+//         res.send("invalid credential");
+//       }
+//        else{
+//         passport.authenticate("local")(req, res, function(){
+//           res.redirect("/dashboard");
+//         });
+//       }
+//     });
+//   });
 
 app.get("/change-password", (req, res)=>{
   if (req.isAuthenticated()){
@@ -194,21 +218,21 @@ app.post('/change-password', async (req, res) => {
 
     // Set the new password
     user.setPassword(newPassword, function(err) {
-  if (err) {
-    console.log(err);
-    res.render("change-password", { message: "An error occurred while changing your password." });
-    return;
-  }
-
-    user.save().then(function() {
-      console.log("Password changed successfully!");
-      res.render("change-password", { message: "Password changed successfully!" });
-      }).catch(function(err) {
+    if (err) {
       console.log(err);
       res.render("change-password", { message: "An error occurred while changing your password." });
+      return;
+    }
+
+      user.save().then(function() {
+        console.log("Password changed successfully!");
+        res.render("change-password", { message: "Password changed successfully!" });
+        }).catch(function(err) {
+        console.log(err);
+        res.render("change-password", { message: "An error occurred while changing your password." });
+      });
     });
   });
-});
 });
 
 
@@ -219,6 +243,9 @@ app.get('/logout', function(req, res) {
     if(err) {
       console.log(err);
     } else {
+      res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+      res.header('Expires', '-1');
+      res.header('Pragma', 'no-cache');
       res.redirect('/');
     }
   });
