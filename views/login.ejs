@@ -44,7 +44,7 @@
 
     function isValidPassword(password) {
       // password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number
-      const pattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/;
+      const pattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[-+_!@#$%^&*.,?])[0-9a-zA-Z-_!@#$%^&*.,?]{8,}$/;
       return pattern.test(password);
     }
 
@@ -67,7 +67,7 @@
         passwordWarning.textContent = "Password is required";
         return false;
       } else if (!isValidPassword(passwordInput.value)) {
-        passwordWarning.textContent = "Password must have least 8 characters and least one uppercase letter, one lowercase letter and one number";
+        passwordWarning.textContent = "Password must content 8 characters, uppercase, lowercase, number and symbole";
         return false;
       } else {
         passwordWarning.textContent = "";

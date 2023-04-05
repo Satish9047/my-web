@@ -8,6 +8,10 @@ const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const findOrCreate = require("mongoose-findorcreate");
+const speakeasy = require("speakeasy");
+const nodemailer = require("nodemailer");
+
+
 
 const app = express();
 app.use(express.json());
@@ -30,12 +34,12 @@ mongoose.connect('mongodb://127.0.0.1:27017/userDB', { useNewUrlParser: true})
   .then(() => console.log('MongoDB Connected'))
   .catch((err) => console.log(err));
 
+  const userSchema = new mongoose.Schema({
+    email: { type: String, unique: true },
+    password: { type: String, required: true },
+    googleId: String
+  });
 
-const userSchema = new mongoose.Schema ({
-   email: String,
-   password: String,
-   googleId: String
-});
 
 userSchema.plugin(passportLocalMongoose);
 userSchema.plugin(findOrCreate);
@@ -71,11 +75,55 @@ passport.use(new GoogleStrategy({
   }
 ));
 
+// Generate a secret key
+const secret = speakeasy.generateSecret({ length: 20 });
+
+// Generate a 6-digit verification code
+let token = speakeasy.totp({
+  secret: secret.base32,
+  encoding: 'base32'
+});
+
+function sendcode(email){
+  console.log(token);
+
+  // Create a transporter object using SMTP transport
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.office365.com',
+    port: 587,
+    auth: {
+      user: process.env.EMAIL,
+      pass: process.env.PASSWORD
+    }
+  });
+  //Send the verification code to an email address
+  transporter.sendMail({
+    from: process.env.EMAIL,
+    to: email,
+    subject: 'Your verification code',
+    text: `Trying to login into My Web App? Your verification code is: ${token}`
+  }, (err, info) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(`Email sent: ${info.response}`);
+    }
+  });
+
+}
 
 
 //get request handler
   app.get("/", (req, res)=>{
     res.render("home");
+  });
+
+  app.get("/login", (req, res)=>{
+    res.render("login", {message: ""});
+  });
+
+  app.get("/register", (req, res)=>{
+    res.render("register", {message: ""});
   });
 
   app.get("/auth/google",
@@ -88,89 +136,94 @@ passport.use(new GoogleStrategy({
     res.redirect("/dashboard");
   });
 
-  app.get("/login", (req, res)=>{
-    res.render("login", {message: ""});
-  });
-
-  app.get("/register", (req, res)=>{
-    res.render("register", {message: ""});
-  });
-
-//register
-app.post('/register', async (req, res) => {
-  const email = req.body.username;
-  const password = req.body.password;
-
-  const user = await User.findOne({ email: email }).exec();
-  if (user) {
-    console.log("user already exists !!!!!");
-    res.render("register", { message: "User Already exist, Try login !" });
-  }
-   else {
-    User.register({username: email}, req. body.password)
-      .then(user => {
-        passport.authenticate("local")(req, res, function(){
-          res.render("register", {message: "User registered successfully."})
-        })
-      })
-      .catch(err =>{
-        console.log(err);
-        res.redirect("/register")
-      })
-  }
-});
-
-
-  app.get("/dashboard",(req, res)=>{
+  app.get("/verify", (req, res)=>{
     if (req.isAuthenticated()){
-      res.render("dashboard");
+      res.render("verify", {message: ""});
     } else {
       res.redirect("/login");
     }
   });
 
+  app.post("/verification", (req, res)=>{
+    try {
+      const verifyToken = req.body.verification;
 
-//Login
-
-app.post("/login", (req, res, next)=>{
-  passport.authenticate("local", (err, user, info) => {
-    if (err) {
-      return next(err);
-      res.redirect("/login");
-    }
-    if (!user) {
-      return res.render("login", {message: "Invalid credential !"});
-    }
-    req.login(user, (err) => {
-      if (err) {
-        return next(err);
-        res.redirect("/login");
+      if(verifyToken === `${token}`){
+        if (req.isAuthenticated()){
+          res.render("dashboard");
+        } else {
+          res.redirect("/login");
+        }
+      } else{
+        res.render("verify", {message: "Invalid verification code !"});
       }
-      return res.redirect('/dashboard');
-    });
-  })(req, res, next);
+
+    } catch (error) {
+      res.render("verify", {message: "Invalid verification code !"});
+      console.log(error);
+    }
+  })
+
+
+
+
+// //register
+app.post('/register', async (req, res) => {
+  const email = req.body.username;
+  const password = req.body.password;
+
+  const user = await User.findOne({ email: email });
+  if (user) {
+    console.log("user already exists !!!!!");
+    res.render("register", { message: "User Already exist, Try login !" });
+  }
+  else {
+    User.register({username: email}, req.body.password)
+      .then(user => {
+        passport.authenticate("local")(req, res, function(){
+          res.render("register", {message: "User registered successfully."})
+        })
+      })
+      .catch(err => {
+        if (err.name === 'UserExistsError') {
+          console.log("user already exists !!!!!");
+          res.render("register", { message: "User Already exist, Try login !" });
+        } else {
+          console.log(err);
+          res.redirect("/register")
+        }
+      })
+  }
 });
 
-// app.post("/login", (req, res)=>{
-//   const user = new User({
-//     username: req.body.username,
-//     password: req.body.password
-//   });
-//     req.login(user, function(err){
-//       if(err){
-//         res.redirect("/login");
-//         console.log(err);
-//       }
-//       if(!user){
-//         res.send("invalid credential");
-//       }
-//        else{
-//         passport.authenticate("local")(req, res, function(){
-//           res.redirect("/dashboard");
-//         });
-//       }
-//     });
-//   });
+
+  // app.get("/dashboard",(req, res)=>{
+  //   if (req.isAuthenticated()){
+  //     res.render("dashboard");
+  //   } else {
+  //     res.redirect("/login");
+  //   }
+  // });
+
+//login
+  app.post("/login", (req, res, next) => {
+    passport.authenticate("local", (err, user, info) => {
+      if (err) {
+        return next(err);
+      }
+      if (!user) {
+        return res.render("login", { message: "Invalid credentials" });
+      }
+      req.logIn(user, (err) => {
+        if (err) {
+          return next(err);
+        }
+        sendcode(req.body.username)
+        return res.render("verify", { message: "" });
+      });
+    })(req, res, next);
+  });
+
 
 app.get("/change-password", (req, res)=>{
   if (req.isAuthenticated()){

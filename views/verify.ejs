@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/styles.css">
+    <title>Verify Email</title>
+  </head>
+  <body>
+    <div>
+      <div>
+        <form class="verify-form" action="/verification" method="post">
+          <h1>Verify your email</h1>
+          <label>Enter code number to verify</label><br>
+          <div class="error-message">
+            <% if (message !=="") { %>
+              <p><%= message %></p>
+            <% } %>
+          </div>
+          <input type="text" name="verification">
+          <button type="submit" name="button">Verify</button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
